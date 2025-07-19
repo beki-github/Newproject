@@ -2,12 +2,14 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 using namespace std;
+// some comments 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
 const char *vertexShaderSource="#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
+    "layout(location=0)in vec3 aColor;\n"
     "out vec4 vertexColor;\n"
     "void main()\n"
     "{\n"
@@ -23,10 +25,10 @@ const char* fragmentShaderSource = "#version 330 core\n"
       "FragColor = varColor;\n"
 "}\0";
 float vertices[] = {
-     0.5f,  0.5f, 0.0f,  // top right
-     0.5f, -0.5f, 0.0f,  // bottom right
-    -0.5f, -0.5f, 0.0f,  // bottom left
-    -0.5f,  0.5f, 0.0f   // top left 
+     0.5f,  0.5f, 0.0f, 1.0f,0.0f,0.0f, // top right
+     0.5f, -0.5f, 0.0f, 0.0f,1.0f,0.0f, // bottom right
+    -0.5f, -0.5f, 0.0f, 0.0f,0.0f,1.0f, // bottom left
+    -0.5f,  0.5f, 0.0f, 1.0f,1.0f,0.0f// top left 
 };
 unsigned int indices[] = {  // note that we start from 0!
     0, 1, 3,   // first triangle
@@ -108,7 +110,7 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     //EBO setup
-    unsigned int EBO;
+    unsigned int EBO;//g
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
@@ -119,7 +121,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);// Clear the screen with the set color
         glUseProgram(shaderProgram);
         float timeValue = static_cast<float>(glfwGetTime());
-        float opValue = sin(5*timeValue) / 3.0f + 0.5f;
+        float opValue = sin(5*timeValue) / 3.0f + 0.5f;//increased frequancy
         int varColorLocation = glGetUniformLocation(shaderProgram, "varColor");
         glUniform4f(varColorLocation, opValue, 0.0, 0.2,0.0);
         glBindVertexArray(VAO);
