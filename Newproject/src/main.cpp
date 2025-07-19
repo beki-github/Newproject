@@ -9,25 +9,24 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 }
 const char *vertexShaderSource="#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
-    "layout(location=0)in vec3 aColor;\n"
-    "out vec4 vertexColor;\n"
+    "layout(location=0) in vec3 aColor;\n"
+    "out vec3 ourColor;\n"
     "void main()\n"
     "{\n"
     "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-        "vertexColor=vec4(0.5, 0.0, 0.0, 1.0);\n"
+        "ourColor=aColor;\n"
     "}\0";
 const char* fragmentShaderSource = "#version 330 core\n"
 "out vec4 FragColor;\n"
-"in vec4 vertexColor;\n"
-"uniform vec4 varColor;"
+"in vec3 ourColor;\n"
 "void main()\n"
 "{\n"
-      "FragColor = varColor;\n"
+      "FragColor = vec4(ourColor,1.0f);\n"
 "}\0";
 float vertices[] = {
      0.5f,  0.5f, 0.0f, 1.0f,0.0f,0.0f, // top right
      0.5f, -0.5f, 0.0f, 0.0f,1.0f,0.0f, // bottom right
-    -0.5f, -0.5f, 0.0f, 0.0f,0.0f,1.0f, // bottom left
+    -0.5f, -0.5f, 0.0f, 0.0f,1.0f,0.0f, // bottom left
     -0.5f,  0.5f, 0.0f, 1.0f,1.0f,0.0f// top left 
 };
 unsigned int indices[] = {  // note that we start from 0!
@@ -114,16 +113,16 @@ int main()
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    //position attribute 
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6* sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    //color attribute 
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(sizeof(float)));
+    glEnableVertexAttribArray(1);
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);// Clear the screen with the set color
         glUseProgram(shaderProgram);
-        float timeValue = static_cast<float>(glfwGetTime());
-        float opValue = sin(5*timeValue) / 3.0f + 0.5f;//increased frequancy
-        int varColorLocation = glGetUniformLocation(shaderProgram, "varColor");
-        glUniform4f(varColorLocation, opValue, 0.0, 0.2,0.0);
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glfwSwapBuffers(window);          // Swap buffers
