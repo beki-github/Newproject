@@ -8,5 +8,5 @@ void main()
  {
  gl_Position = vec4(aPos, 1.0);
  ourColor=aColor;
- Texcoord = vec2(1.0-aTexCoord.x, 1.0 - aTexCoord.y); // Flip y-coordinate
+ Texcoord = vec2(aTexCoord.x,  aTexCoord.y); 
  }
