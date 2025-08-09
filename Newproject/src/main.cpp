@@ -1,9 +1,14 @@
 #include <iostream>
+#include<cmath>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "Shader.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+//GLM setup
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
@@ -23,17 +28,16 @@ unsigned int indices[] = {  // note that we start from 0!
     0, 1, 3,   // first triangle
     1, 2, 3    // second triangle
 };
-int success;
-char infolog[512];
-
 int main()
 {
+
+
     if (!glfwInit())
     {
         std::cout << "Failed to initialize GLFW" << std::endl;
         return -1;
     }
-
+    
     glfwWindowHint(GLFW_SAMPLES, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -132,6 +136,7 @@ int main()
     Shader.use();
     Shader.setInt("texture1", 0);
     Shader.setInt("texture2", 1);
+    
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
@@ -141,8 +146,12 @@ int main()
         glBindTexture(GL_TEXTURE_2D, texture1);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
-
-        Shader.use();
+        float time = glfwGetTime();
+        float visibility = (sin(10* time) + 1.0f) / 2.0f;
+        Shader.setFloat("visibility", visibility);
+        glm::mat4 trans = glm::mat4(1.0f);
+        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
+        Shader.setMat4("transform", trans);
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
        
