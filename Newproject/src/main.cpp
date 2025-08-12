@@ -136,6 +136,14 @@ int main()
     Shader.use();
     Shader.setInt("texture1", 0);
     Shader.setInt("texture2", 1);
+    glm::mat4 transform = glm::mat4(1.0f);
+    glm::mat4 model = glm::mat4(1.0f);
+    glm::mat4 view = glm::mat4(1.0f);
+    glm::mat4 projection = glm::mat4(1.0f);
+
+    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
     
     while (!glfwWindowShouldClose(window))
     {
@@ -148,10 +156,12 @@ int main()
         glBindTexture(GL_TEXTURE_2D, texture2);
         float time = glfwGetTime();
         float visibility = (sin(10* time) + 1.0f) / 2.0f;
+        transform = glm::rotate(transform, sin(time/10080), glm::vec3(1.0f, 0.0f, 0.0f));
         Shader.setFloat("visibility", visibility);
-        glm::mat4 trans = glm::mat4(1.0f);
-        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0, 0.0, 1.0));
-        Shader.setMat4("transform", trans);
+        Shader.setMat4("transform", transform);
+        Shader.setMat4("model", model);
+        Shader.setMat4("view",view);
+        Shader.setMat4("projection", projection);
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
        
