@@ -19,14 +19,49 @@ void processInput(GLFWwindow* window) {
 }
 
 float vertices[] = {
-     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,  
-     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,  
-    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   
-    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    
+    // Front face
+    -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f,
+
+    // Back face
+    -0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f,
+
+    // Left face
+    -0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f,
+
+    // Right face
+     0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f,
+
+     // Bottom face
+     -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+      0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
+      0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f,
+     -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f,
+
+     // Top face
+     -0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
+      0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
+      0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f,
+     -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f
 };
-unsigned int indices[] = {  // note that we start from 0!
-    0, 1, 3,   // first triangle
-    1, 2, 3    // second triangle
+unsigned int indices[] = {
+    0, 1, 2,   0, 2, 3,    // Front
+    4, 5, 6,   4, 6, 7,    // Back
+    8, 9, 10,  8, 10, 11,  // Left
+    12, 13, 14, 12, 14, 15,// Right
+    16, 17, 18, 16, 18, 19,// Bottom
+    20, 21, 22, 20, 22, 23 // Top
 };
 int main()
 {
@@ -61,6 +96,8 @@ int main()
     glViewport(0, 0, 800, 600);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Set a blue-ish background
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    glEnable(GL_DEPTH_TEST);
 
     //DRAW in wire frame mode
    /* glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);*/
@@ -136,34 +173,52 @@ int main()
     Shader.use();
     Shader.setInt("texture1", 0);
     Shader.setInt("texture2", 1);
-    glm::mat4 transform = glm::mat4(1.0f);
+   
     glm::mat4 model = glm::mat4(1.0f);
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
 
-    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+
+    
+
+   
+    model = glm::rotate(model, glm::radians(25.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -15.0f));
     projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+    Shader.setMat4("view", view);
+    Shader.setMat4("projection", projection);
+    const double PI = 3.141592653;
+    const double rad = 10.0;
+    int objectNum = static_cast<int>(PI / asin(1 / rad));
+    std::cout << objectNum << std::endl;
     
     while (!glfwWindowShouldClose(window))
     {
         processInput(window);
         glClear(GL_COLOR_BUFFER_BIT);// Clear the screen with the set color
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
         float time = glfwGetTime();
-        float visibility = (sin(10* time) + 1.0f) / 2.0f;
-        transform = glm::rotate(transform, sin(time/10080), glm::vec3(1.0f, 0.0f, 0.0f));
-        Shader.setFloat("visibility", visibility);
-        Shader.setMat4("transform", transform);
+        glm::mat4 model = glm::mat4(1.0f); // Reset model matrix each frame
+
+        
+        float radius = 10.0f;
+     
+        float x = static_cast<float>(radius * cos(time));
+        float z =static_cast<float>( radius * sin(time));
+        model = glm::translate(model, glm::vec3(x, 0.0f, z));
+        
+
+        model = glm::rotate(model, time , glm::vec3(0.0f, 1.0f, 0.0f)); // Rotate around the object y-axis
         Shader.setMat4("model", model);
-        Shader.setMat4("view",view);
-        Shader.setMat4("projection", projection);
+       
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
        
         glfwSwapBuffers(window);          // Swap buffers
         glfwPollEvents();                 // Handle events
