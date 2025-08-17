@@ -184,7 +184,7 @@ int main()
 
    
     model = glm::rotate(model, glm::radians(25.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    view = glm::translate(view, glm::vec3(0.0f, -3.0f, -25.0f));
+    view = glm::translate(view, glm::vec3(0.0f, -3.0f, -30.0f));
     projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
     Shader.setMat4("view", view);
     Shader.setMat4("projection", projection);
@@ -216,7 +216,9 @@ int main()
 
             for (unsigned int y = 0;y < 4;y++) {
                 glm::mat4 model = glm::mat4(1.0f); // Reset model matrix for each object
+                model = glm::rotate(model, time * glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
                 model = glm::translate(model, glm::vec3(newX, static_cast<float>(y)*2.0f, newZ));
+                
                 Shader.setMat4("model", model);
                 glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
             }
