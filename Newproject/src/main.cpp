@@ -175,7 +175,7 @@ int main()
     Shader.setInt("texture2", 1);
    
     glm::mat4 model = glm::mat4(1.0f);
-    glm::mat4 view = glm::mat4(1.0f);
+  
     glm::mat4 projection = glm::mat4(1.0f);
 
 
@@ -184,13 +184,14 @@ int main()
 
    
     model = glm::rotate(model, glm::radians(25.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    view = glm::translate(view, glm::vec3(0.0f, -3.0f, -30.0f));
+    
     projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-    Shader.setMat4("view", view);
+    
     Shader.setMat4("projection", projection);
     const double PI = 3.141592653;
     while (!glfwWindowShouldClose(window))
     {
+        
         processInput(window);
         glClear(GL_COLOR_BUFFER_BIT);// Clear the screen with the set color
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -201,6 +202,13 @@ int main()
         glBindTexture(GL_TEXTURE_2D, texture2);
         glBindVertexArray(VAO);
         float time = glfwGetTime();
+        //
+        float camX = static_cast<float>(sin(glfwGetTime()) * 25.0f);
+        float camZ = static_cast<float>(cos(glfwGetTime()) * 25.0f);
+        glm::mat4 view;
+        view = glm::lookAt(glm::vec3(camX+12.0f, 18.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        Shader.setMat4("view", view);
+        //
         const float radius = 10.0f;
         const float angle = 2.0f * asin(2.0f / (2.0f * radius));
         const int objectNum = static_cast<int>(2.0f * PI / angle );
@@ -216,17 +224,20 @@ int main()
 
             for (unsigned int y = 0;y < 4;y++) {
                 glm::mat4 model = glm::mat4(1.0f); // Reset model matrix for each object
-                model = glm::rotate(model, time * glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+                float angleDir;
+                (y % 2 == 0) ?  angleDir = 1.0f :  angleDir = -1.0f;
+                model = glm::rotate(model, angleDir*time * glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
                 model = glm::translate(model, glm::vec3(newX, static_cast<float>(y)*2.0f, newZ));
-                
                 Shader.setMat4("model", model);
                 glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
             }
             // Update current position for the next iteration
             currentX = newX;
             currentZ = newZ;
-           
+
+            
         }
+      
        
         glfwSwapBuffers(window);          // Swap buffers
         glfwPollEvents();                 // Handle events
