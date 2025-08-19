@@ -9,13 +9,28 @@
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
+//camera setup 
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, -30.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
 void processInput(GLFWwindow* window) {
+    const float cameraSpeed = 0.01f;
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    //movment in z axis 
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        cameraPos += cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * cameraFront;
+    //movment in x axis
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 }
 
 float vertices[] = {
@@ -177,15 +192,10 @@ int main()
     glm::mat4 model = glm::mat4(1.0f);
   
     glm::mat4 projection = glm::mat4(1.0f);
-
-
-
-    
-
    
     model = glm::rotate(model, glm::radians(25.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     
-    projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+    projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 300.0f);
     
     Shader.setMat4("projection", projection);
     const double PI = 3.141592653;
@@ -203,10 +213,9 @@ int main()
         glBindVertexArray(VAO);
         float time = glfwGetTime();
         //
-        float camX = static_cast<float>(sin(glfwGetTime()) * 25.0f);
-        float camZ = static_cast<float>(cos(glfwGetTime()) * 25.0f);
+        
         glm::mat4 view;
-        view = glm::lookAt(glm::vec3(camX+12.0f, 18.0f, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        view = glm::lookAt(cameraPos, cameraPos+cameraFront, cameraUp);
         Shader.setMat4("view", view);
         //
         const float radius = 10.0f;
@@ -225,7 +234,7 @@ int main()
             for (unsigned int y = 0;y < 4;y++) {
                 glm::mat4 model = glm::mat4(1.0f); // Reset model matrix for each object
                 float angleDir;
-                (y % 2 == 0) ?  angleDir = 1.0f :  angleDir = -1.0f;
+                (y % 2 == 1) ?  angleDir = 5.0f :  angleDir = -3.0f;
                 model = glm::rotate(model, angleDir*time * glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
                 model = glm::translate(model, glm::vec3(newX, static_cast<float>(y)*2.0f, newZ));
                 Shader.setMat4("model", model);
