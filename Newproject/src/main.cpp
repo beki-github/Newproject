@@ -1,5 +1,6 @@
 #include <iostream>
 #include<cmath>
+#include <algorithm>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "Shader.h"
@@ -9,30 +10,9 @@
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
-//camera setup 
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, -30.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
-void processInput(GLFWwindow* window) {
-    const float cameraSpeed = 0.01f;
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-    //movment in z axis 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        cameraPos += cameraSpeed * cameraFront;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        cameraPos -= cameraSpeed * cameraFront;
-    //movment in x axis
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-}
-
+void mouse_callback(GLFWwindow* window, double xPos, double yPos);
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void processInput(GLFWwindow* window, float deltaTime);
 float vertices[] = {
     // Front face
     -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
@@ -78,9 +58,29 @@ unsigned int indices[] = {
     16, 17, 18, 16, 18, 19,// Bottom
     20, 21, 22, 20, 22, 23 // Top
 };
+float clamp(float value, float min, float max) {
+    if (value < min) return min;
+    if (value > max) return max;
+    return value;
+}
+//camera setup 
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, -7.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+// set initial positions to the center
+float lastX = 400;
+float lastY = 300;
+//initial entry to true
+bool firstEntry = true;
+//first camera offsets 
+float yaw = -90.0f;
+float pitch = 0.0f;
+
+float lastFrame = 0.0f;
+
 int main()
 {
-
+    
 
     if (!glfwInit())
     {
@@ -92,6 +92,8 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    //cursor settings
+
 
     GLFWwindow* window;
     window = glfwCreateWindow(800, 600, "Hello_opengl", NULL, NULL);
@@ -111,6 +113,9 @@ int main()
     glViewport(0, 0, 800, 600);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Set a blue-ish background
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    // cursor settings
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouse_callback);
 
     glEnable(GL_DEPTH_TEST);
 
@@ -202,7 +207,11 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         
-        processInput(window);
+        float deltaTime = 0.0f;
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+        processInput(window,deltaTime);
         glClear(GL_COLOR_BUFFER_BIT);// Clear the screen with the set color
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -259,4 +268,57 @@ int main()
 
     glfwTerminate();
     return 0;
+}
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+}
+void mouse_callback(GLFWwindow* window, double xPos, double yPos)
+{
+    const float sensitivity = 0.05f; // Reduced for touchpad
+    const float threshold = 0.05f;
+    const float maxChange = 5.0f; // Cap large offsets
+    if (firstEntry) {
+        lastX = xPos;
+        lastY = yPos;
+        firstEntry = false;
+        return;
+    }
+    float xChange = static_cast<float>(sensitivity * (xPos - lastX));
+    float yChange = static_cast<float>(sensitivity * (lastY - yPos));
+    if (std::abs(xChange) < threshold && std::abs(yChange) < threshold) {
+        return; // Ignore tiny movements
+    }
+    xChange = clamp(xChange, -maxChange, maxChange);
+    yChange = clamp(yChange, -maxChange, maxChange);
+    lastX = xPos;
+    lastY = yPos;
+    yaw += xChange;
+    pitch += yChange;
+    if (pitch > 89.0f) pitch = 89.0f;
+    if (pitch < -89.0f) pitch = -89.0f;
+    glm::vec3 direction;
+    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(direction);
+    // Debug output (remove after testing)
+    std::cout << "xChange: " << xChange << ", yChange: " << yChange
+        << ", yaw: " << yaw << ", pitch: " << pitch
+        << ", cameraFront: " << cameraFront.x << ", " << cameraFront.y << ", " << cameraFront.z << std::endl;
+}
+void processInput(GLFWwindow* window, float deltaTime) {
+    const float cameraSpeed = 2.5f * deltaTime;
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+    //movement in z axis 
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        cameraPos += cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * cameraFront;
+    //movement in x axis
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 }
