@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "Shader.h"
+#include "Camera.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 //GLM setup
@@ -58,11 +59,6 @@ unsigned int indices[] = {
     16, 17, 18, 16, 18, 19,// Bottom
     20, 21, 22, 20, 22, 23 // Top
 };
-float clamp(float value, float min, float max) {
-    if (value < min) return min;
-    if (value > max) return max;
-    return value;
-}
 //camera setup 
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, -7.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -75,8 +71,10 @@ bool firstEntry = true;
 //first camera offsets 
 float yaw = -90.0f;
 float pitch = 0.0f;
-
+//
 float lastFrame = 0.0f;
+//camera class
+Camera camera = Camera(cameraPos,cameraUp);
 
 int main()
 {
@@ -195,13 +193,11 @@ int main()
     Shader.setInt("texture2", 1);
    
     glm::mat4 model = glm::mat4(1.0f);
-  
     glm::mat4 projection = glm::mat4(1.0f);
    
     model = glm::rotate(model, glm::radians(25.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    
     projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 300.0f);
-    
+    //
     Shader.setMat4("projection", projection);
     const double PI = 3.141592653;
     while (!glfwWindowShouldClose(window))
@@ -222,9 +218,8 @@ int main()
         glBindVertexArray(VAO);
         float time = glfwGetTime();
         //
-        
         glm::mat4 view;
-        view = glm::lookAt(cameraPos, cameraPos+cameraFront, cameraUp);
+        view = camera.GetViewMatrix();
         Shader.setMat4("view", view);
         //
         const float radius = 10.0f;
@@ -276,8 +271,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 void mouse_callback(GLFWwindow* window, double xPos, double yPos)
 {
     const float sensitivity = 0.05f; // Reduced for touchpad
-    const float threshold = 0.05f;
-    const float maxChange = 5.0f; // Cap large offsets
     if (firstEntry) {
         lastX = xPos;
         lastY = yPos;
@@ -286,39 +279,23 @@ void mouse_callback(GLFWwindow* window, double xPos, double yPos)
     }
     float xChange = static_cast<float>(sensitivity * (xPos - lastX));
     float yChange = static_cast<float>(sensitivity * (lastY - yPos));
-    if (std::abs(xChange) < threshold && std::abs(yChange) < threshold) {
-        return; // Ignore tiny movements
-    }
-    xChange = clamp(xChange, -maxChange, maxChange);
-    yChange = clamp(yChange, -maxChange, maxChange);
     lastX = xPos;
     lastY = yPos;
-    yaw += xChange;
-    pitch += yChange;
-    if (pitch > 89.0f) pitch = 89.0f;
-    if (pitch < -89.0f) pitch = -89.0f;
-    glm::vec3 direction;
-    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    direction.y = sin(glm::radians(pitch));
-    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    cameraFront = glm::normalize(direction);
-    // Debug output (remove after testing)
-    std::cout << "xChange: " << xChange << ", yChange: " << yChange
-        << ", yaw: " << yaw << ", pitch: " << pitch
-        << ", cameraFront: " << cameraFront.x << ", " << cameraFront.y << ", " << cameraFront.z << std::endl;
+    //
+    camera.ProcessMouseMovement(xChange, yChange);
+    //
 }
 void processInput(GLFWwindow* window, float deltaTime) {
-    const float cameraSpeed = 2.5f * deltaTime;
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     //movement in z axis 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        cameraPos += cameraSpeed * cameraFront;
+        camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        cameraPos -= cameraSpeed * cameraFront;
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
     //movement in x axis
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        camera.ProcessKeyboard(RIGHT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        camera.ProcessKeyboard(LEFT, deltaTime);
 }
