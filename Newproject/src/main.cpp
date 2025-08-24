@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include "Shader.h"
 #include "Camera.h"
+#include "utils_gl.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 //GLM setup
@@ -120,26 +121,10 @@ int main()
     //DRAW in wire frame mode
    /* glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);*/
     //VAO setup
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-    //VBO setup 
-    unsigned int VBO;
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    //EBO setup
-    unsigned int EBO;//gs
-    glGenBuffers(1, &EBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    // vertex attribute configuration 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
+
+
+    GLuint VAO, VBO, EBO;
+    setBufferObjects(VAO, VBO, EBO, vertices, sizeof(vertices), indices, sizeof(indices));
     //texture setup
     unsigned int texture1, texture2;
     glGenTextures(1, &texture1);
@@ -228,6 +213,12 @@ int main()
 
         float currentX = 0.0f; // Initial X position
         float currentZ = 10.0f; // Initial Z position
+
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 7.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(5.0f,15.0f, 5.0f));
+        Shader.setMat4("model", model);
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
        
         for (unsigned int i = 0;i < objectNum;i++) {
             
