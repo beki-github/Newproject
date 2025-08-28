@@ -6,8 +6,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "utils_gl.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "Texture.h"
 //GLM setup
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
@@ -127,54 +126,14 @@ int main()
     setBufferObjects(VAO, VBO, EBO, vertices, sizeof(vertices), indices, sizeof(indices));
     //texture setup
     unsigned int texture1, texture2;
-    glGenTextures(1, &texture1);
-    glGenTextures(1, &texture2);
-    stbi_set_flip_vertically_on_load(true);
-    //texture 1
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture1);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    int width, height, nrChannels;
-    unsigned char* data = stbi_load("C:\\Users\\hp\\Desktop\\code\\c++\\Newproject\\Newproject\\src\\power.jpg",
-                                    &width, &height, &nrChannels, 0);
-    if (data)
-    {      
-        GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, texture2);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    unsigned char* data2 = stbi_load("C:\\Users\\hp\\Desktop\\code\\c++\\Newproject\\Newproject\\src\\logo.jpg",
-                           &width, &height, &nrChannels, 0);
-    if (data2) {
-        GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height,0, format, GL_UNSIGNED_BYTE,data2);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else {
-        std::cout << "flailed to load texture 2" << std::endl;
-    }
+    Texture asuka("C:\\Users\\hp\\Desktop\\code\\c++\\Newproject\\Newproject\\src\\power.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
     
-    stbi_image_free(data2);
-
     
     Shader Shader("C:\\Users\\hp\\Desktop\\code\\c++\\Newproject\\Newproject\\src\\shader.vert",
                   "C:\\Users\\hp\\Desktop\\code\\c++\\Newproject\\Newproject\\src\\shader.frag");
     Shader.use();
-    Shader.setInt("texture1", 0);
+    /*Shader.setInt("texture1", 0);*/
+    asuka.texUnit(Shader, "texture1", 0);
     Shader.setInt("texture2", 1);
    
     glm::mat4 model = glm::mat4(1.0f);
@@ -187,7 +146,7 @@ int main()
     const double PI = 3.141592653;
     while (!glfwWindowShouldClose(window))
     {
-        
+        asuka.Bind();
         float deltaTime = 0.0f;
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -195,11 +154,6 @@ int main()
         processInput(window,deltaTime);
         glClear(GL_COLOR_BUFFER_BIT);// Clear the screen with the set color
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
         glBindVertexArray(VAO);
         float time = glfwGetTime();
         //
