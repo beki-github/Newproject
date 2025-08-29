@@ -5,6 +5,7 @@ Texture::Texture(const char* imagePath, GLenum texType, GLenum slot, GLenum pixe
 {
 	// Assigns the type of the texture ot the texture object
 	type = texType;
+	textureSlot = slot;
 
 	// Stores the width, height, and the number of color channels of the image
 	int widthImg, heightImg, numColCh;
@@ -16,7 +17,6 @@ Texture::Texture(const char* imagePath, GLenum texType, GLenum slot, GLenum pixe
 	glGenTextures(1, &ID);
 	// Assigns the texture to a Texture Unit
 	//
-	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, ID);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -53,6 +53,8 @@ void Texture::texUnit(Shader& shader, const char* uniform, GLuint unit)
 void Texture::Bind()
 {
 	glBindTexture(type, ID);
+	glActiveTexture(textureSlot);
+
 }
 
 void Texture::Unbind()

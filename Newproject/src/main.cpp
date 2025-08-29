@@ -7,6 +7,9 @@
 #include "Camera.h"
 #include "utils_gl.h"
 #include "Texture.h"
+#include "VAO.h"
+#include"VBO.h"
+#include"EBO.h"
 //GLM setup
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
@@ -51,7 +54,7 @@ float vertices[] = {
       0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f,
      -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f
 };
-unsigned int indices[] = {
+GLuint indices[] = {
     0, 1, 2,   0, 2, 3,    // Front
     4, 5, 6,   4, 6, 7,    // Back
     8, 9, 10,  8, 10, 11,  // Left
@@ -122,8 +125,26 @@ int main()
     //VAO setup
 
 
-    GLuint VAO, VBO, EBO;
-    setBufferObjects(VAO, VBO, EBO, vertices, sizeof(vertices), indices, sizeof(indices));
+    //GLuint VAO, VBO, EBO;
+    //setBufferObjects(VAO, VBO, EBO, vertices, sizeof(vertices), indices, sizeof(indices));
+    ////
+    
+    VAO VAO1;
+    VAO1.bind();
+
+    // Generates Vertex Buffer Object and links it to vertices
+    VBO VBO1(vertices, sizeof(vertices));
+    // Generates Element Buffer Object and links it to indices
+    EBO EBO1(indices, sizeof(indices));
+
+    // Links VBO attributes such as coordinates and colors to VAO
+    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
+    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    // Unbind all to prevent accidentally modifying them
+    VAO1.unbind();
+    VBO1.unbind();
+    EBO1.unbind();
     //texture setup
     unsigned int texture1, texture2;
     Texture asuka("C:\\Users\\hp\\Desktop\\code\\c++\\Newproject\\Newproject\\src\\power.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
@@ -154,7 +175,7 @@ int main()
         processInput(window,deltaTime);
         glClear(GL_COLOR_BUFFER_BIT);// Clear the screen with the set color
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glBindVertexArray(VAO);
+        VAO1.bind();
         float time = glfwGetTime();
         //
         glm::mat4 view;
@@ -179,7 +200,6 @@ int main()
             float newX = currentX * cos(angle) - currentZ * sin(angle); // Rotate current position
             float newZ = currentX * sin(angle) + currentZ * cos(angle);
 
-
             for (unsigned int y = 0;y < 4;y++) {
                 glm::mat4 model = glm::mat4(1.0f); // Reset model matrix for each object
                 float angleDir;
@@ -200,9 +220,6 @@ int main()
         glfwSwapBuffers(window);          // Swap buffers
         glfwPollEvents();                 // Handle events
     }
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
     glDeleteTextures(1, &texture1);
     glDeleteTextures(1, &texture2);
 
