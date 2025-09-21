@@ -220,8 +220,6 @@ int main()
         glfwSwapBuffers(window);          // Swap buffers
         glfwPollEvents();                 // Handle events
     }
-    glDeleteTextures(1, &texture1);
-    glDeleteTextures(1, &texture2);
 
     glfwTerminate();
     return 0;
