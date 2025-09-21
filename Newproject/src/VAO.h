@@ -17,6 +17,7 @@ public:
 	// Unbinds the VAO
 	void unbind();
 	// Deletes the VAO
+	void disAbleLayout( GLuint layout );
 	void Delete();
 };
 #endif

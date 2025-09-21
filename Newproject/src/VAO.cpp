@@ -26,6 +26,11 @@ void VAO::unbind()
 {
 	glBindVertexArray(0);
 }
+// disables layout at the appropriate index
+void VAO::disAbleLayout(GLuint layout)
+{
+	glDisableVertexAttribArray(layout);
+}
 
 // Deletes the VAO
 void VAO::Delete()

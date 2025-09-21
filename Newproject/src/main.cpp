@@ -17,54 +17,66 @@
 void mouse_callback(GLFWwindow* window, double xPos, double yPos);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window, float deltaTime);
-float vertices[] = {
-    // Front face
-    -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f,
+// Vertex data (x, y, z, u, v)
+// Vertex data (x, y, z, u, v)
+// Vertex data (x, y, z, u, v)
+GLfloat vertices[] = {
+    // COORDINATES        TexCoord
+    -0.5f, 0.0f,  0.5f,  0.0f, 0.0f,  // Bottom side
+    -0.5f, 0.0f, -0.5f,  0.0f, 5.0f,  // Bottom side
+     0.5f, 0.0f, -0.5f,  5.0f, 5.0f,  // Bottom side
+     0.5f, 0.0f,  0.5f,  5.0f, 0.0f,  // Bottom side
 
-    // Back face
-    -0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f,
+    -0.5f, 0.0f,  0.5f,  0.0f, 0.0f,  // Left side
+    -0.5f, 0.0f, -0.5f,  5.0f, 0.0f,  // Left side
+     0.0f, 0.8f,  0.0f,  2.5f, 5.0f,  // Left side
 
-    // Left face
-    -0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f,
+    -0.5f, 0.0f, -0.5f,  5.0f, 0.0f,  // Non-facing side
+     0.5f, 0.0f, -0.5f,  0.0f, 0.0f,  // Non-facing side
+     0.0f, 0.8f,  0.0f,  2.5f, 5.0f,  // Non-facing side
 
-    // Right face
-     0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f,
+     0.5f, 0.0f, -0.5f,  0.0f, 0.0f,  // Right side
+     0.5f, 0.0f,  0.5f,  5.0f, 0.0f,  // Right side
+     0.0f, 0.8f,  0.0f,  2.5f, 5.0f,  // Right side
 
-     // Bottom face
-     -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-      0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
-      0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f,
-     -0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f,
-
-     // Top face
-     -0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-      0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,
-      0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f,
-     -0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f
+     0.5f, 0.0f,  0.5f,  5.0f, 0.0f,  // Facing side
+    -0.5f, 0.0f,  0.5f,  0.0f, 0.0f,  // Facing side
+     0.0f, 0.8f,  0.0f,  2.5f, 5.0f   // Facing side
 };
+
+// Indices for vertices order
 GLuint indices[] = {
-    0, 1, 2,   0, 2, 3,    // Front
-    4, 5, 6,   4, 6, 7,    // Back
-    8, 9, 10,  8, 10, 11,  // Left
-    12, 13, 14, 12, 14, 15,// Right
-    16, 17, 18, 16, 18, 19,// Bottom
-    20, 21, 22, 20, 22, 23 // Top
+    0, 1, 2,  // Bottom side
+    0, 2, 3,  // Bottom side
+    4, 6, 5,  // Left side
+    7, 9, 8,  // Non-facing side
+    10, 12, 11, // Right side
+    13, 15, 14  // Facing side
+};
+// Vertex data (x, y, z, r, g, b)
+GLfloat cubeVertices[] = {
+    -0.5f, -0.5f,  0.5f,  1.0f, 0.65f, 0.0f,  // 0 - Front-bottom-left
+     0.5f, -0.5f,  0.5f,  1.0f, 0.65f, 0.0f,  // 1 - Front-bottom-right
+     0.5f,  0.5f,  0.5f,  1.0f, 0.65f, 0.0f,  // 2 - Front-top-right
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.65f, 0.0f,  // 3 - Front-top-left
+    -0.5f, -0.5f, -0.5f,  1.0f, 0.65f, 0.0f,  // 4 - Back-bottom-left
+     0.5f, -0.5f, -0.5f,  1.0f, 0.65f, 0.0f,  // 5 - Back-bottom-right
+     0.5f,  0.5f, -0.5f,  1.0f, 0.65f, 0.0f,  // 6 - Back-top-right
+    -0.5f,  0.5f, -0.5f,  1.0f, 0.65f, 0.0f   // 7 - Back-top-left
+};
+
+// Indices for edges (pairs for GL_LINES)
+GLuint cubeIndices[] = {
+    0, 1, 2, 0, 2, 3, // Front
+    4, 5, 6, 4, 6, 7, // Back
+    0, 4, 7, 0, 7, 3, // Left
+    1, 5, 6, 1, 6, 2, // Right
+    3, 2, 6, 3, 6, 7, // Top
+    0, 1, 5, 0, 5, 4  // Bottom
 };
 //camera setup 
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, -7.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 2.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 // set initial positions to the center
 float lastX = 400;
@@ -117,110 +129,99 @@ int main()
     // cursor settings
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, mouse_callback);
-
     glEnable(GL_DEPTH_TEST);
-
-    //DRAW in wire frame mode
-   /* glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);*/
-    //VAO setup
-
-
-    //GLuint VAO, VBO, EBO;
-    //setBufferObjects(VAO, VBO, EBO, vertices, sizeof(vertices), indices, sizeof(indices));
-    ////
-    
+    //set up buffer object for pyramid 
     VAO VAO1;
     VAO1.bind();
-
-    // Generates Vertex Buffer Object and links it to vertices
     VBO VBO1(vertices, sizeof(vertices));
-    // Generates Element Buffer Object and links it to indices
     EBO EBO1(indices, sizeof(indices));
-
-    // Links VBO attributes such as coordinates and colors to VAO
-    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
-    VAO1.LinkAttrib(VBO1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    VAO1.LinkAttrib(VBO1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    
+    VAO1.LinkAttrib(VBO1, 0, 3, GL_FLOAT, 5 * sizeof(float), (void*)0);
+    VAO1.LinkAttrib(VBO1, 1, 2, GL_FLOAT, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    VAO1.disAbleLayout(2);
+    VAO1.disAbleLayout(3);
+    
     // Unbind all to prevent accidentally modifying them
     VAO1.unbind();
     VBO1.unbind();
     EBO1.unbind();
+    //setup buffer objects for cube 
+    VAO cubeVAO;
+    cubeVAO.bind();
+    VBO cubeVBO(cubeVertices,sizeof(cubeVertices));
+    EBO cubeEBO(cubeIndices, sizeof(cubeIndices));
+   
+    cubeVAO.LinkAttrib(cubeVBO, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+    cubeVAO.disAbleLayout(1);
+    cubeVAO.LinkAttrib(cubeVBO, 2, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3*sizeof(float)));
+    cubeVAO.disAbleLayout(3);
+   
+    // unbind to prevent accidental modification 
+    cubeVAO.unbind();
+    cubeVBO.unbind();
+    cubeEBO.unbind();
+
     //texture setup
-    unsigned int texture1, texture2;
-    Texture asuka("C:\\Users\\hp\\Desktop\\code\\c++\\Newproject\\Newproject\\src\\power.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
-    
-    
+
+    Texture asuka("C:\\Users\\hp\\Desktop\\code\\c++\\Newproject\\Newproject\\src\\bricks.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
+
+
     Shader Shader("C:\\Users\\hp\\Desktop\\code\\c++\\Newproject\\Newproject\\src\\shader.vert",
                   "C:\\Users\\hp\\Desktop\\code\\c++\\Newproject\\Newproject\\src\\shader.frag");
     Shader.use();
     /*Shader.setInt("texture1", 0);*/
     asuka.texUnit(Shader, "texture1", 0);
-    Shader.setInt("texture2", 1);
-   
-    glm::mat4 model = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
-   
-    model = glm::rotate(model, glm::radians(25.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 300.0f);
+    projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.01f, 300.0f);
     //
     Shader.setMat4("projection", projection);
-    const double PI = 3.141592653;
     while (!glfwWindowShouldClose(window))
-    {
+    {  
         asuka.Bind();
         float deltaTime = 0.0f;
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         processInput(window,deltaTime);
-        glClear(GL_COLOR_BUFFER_BIT);// Clear the screen with the set color
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        VAO1.bind();
-        float time = glfwGetTime();
-        //
         glm::mat4 view;
         view = camera.GetViewMatrix();
         Shader.setMat4("view", view);
+        glClear(GL_COLOR_BUFFER_BIT);// Clear the screen with the set color
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //
-        const float radius = 10.0f;
-        const float angle = 2.0f * asin(2.0f / (2.0f * radius));
-        const int objectNum = static_cast<int>(2.0f * PI / angle );
-
-        float currentX = 0.0f; // Initial X position
-        float currentZ = 10.0f; // Initial Z position
-
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 7.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(5.0f,15.0f, 5.0f));
+        VAO1.bind();
+        asuka.Bind();
+        asuka.texUnit(Shader, "texture1", 0);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
         Shader.setMat4("model", model);
-        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-       
-        for (unsigned int i = 0;i < objectNum;i++) {
-            
-            float newX = currentX * cos(angle) - currentZ * sin(angle); // Rotate current position
-            float newZ = currentX * sin(angle) + currentZ * cos(angle);
-
-            for (unsigned int y = 0;y < 4;y++) {
-                glm::mat4 model = glm::mat4(1.0f); // Reset model matrix for each object
-                float angleDir;
-                (y % 2 == 1) ?  angleDir = 5.0f :  angleDir = -3.0f;
-                model = glm::rotate(model, angleDir*time * glm::radians(15.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-                model = glm::translate(model, glm::vec3(newX, static_cast<float>(y)*2.0f, newZ));
-                Shader.setMat4("model", model);
-                glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-            }
-            // Update current position for the next iteration
-            currentX = newX;
-            currentZ = newZ;
-
-            
-        }
+        glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT,0);
+        VAO1.unbind();
+        //
+        model = glm::mat4(1.0f);
+        cubeVAO.bind();
+        model = glm::translate(model, glm::vec3(1.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+        Shader.setMat4("model", model);
+        glDrawElements(GL_TRIANGLES,sizeof(cubeIndices)/sizeof(int), GL_UNSIGNED_INT, 0);
+        cubeVAO.unbind();
+        // for rendering the pyramid
+    
       
        
         glfwSwapBuffers(window);          // Swap buffers
         glfwPollEvents();                 // Handle events
     }
-
+    asuka.Delete();
+    //
+    VAO1.Delete();
+    VBO1.Delete();
+    EBO1.Delete();
+    //
+    cubeVBO.Delete();
+    cubeVAO.Delete();
+    cubeEBO.Delete();
+    //
     glfwTerminate();
     return 0;
 }
