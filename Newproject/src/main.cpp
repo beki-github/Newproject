@@ -166,15 +166,25 @@ int main()
     Texture asuka("C:\\Users\\hp\\Desktop\\code\\c++\\Newproject\\Newproject\\src\\bricks.jpg", GL_TEXTURE_2D, GL_TEXTURE0, GL_UNSIGNED_BYTE);
 
 
-    Shader Shader("C:\\Users\\hp\\Desktop\\code\\c++\\Newproject\\Newproject\\src\\shader.vert",
+    Shader objShader("C:\\Users\\hp\\Desktop\\code\\c++\\Newproject\\Newproject\\src\\shader.vert",
                   "C:\\Users\\hp\\Desktop\\code\\c++\\Newproject\\Newproject\\src\\shader.frag");
-    Shader.use();
-    /*Shader.setInt("texture1", 0);*/
-    asuka.texUnit(Shader, "texture1", 0);
+    objShader.use();
+    asuka.texUnit(objShader, "texture1", 0);
     glm::mat4 projection = glm::mat4(1.0f);
     projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.01f, 300.0f);
+    objShader.setMat4("projection", projection);
     //
-    Shader.setMat4("projection", projection);
+    Shader lightShader("C:\\Users\\hp\\Desktop\\code\\c++\\Newproject\\Newproject\\src\\lightObj.vert",
+        "C:\\Users\\hp\\Desktop\\code\\c++\\Newproject\\Newproject\\src\\lightObj.frag");
+    //
+    lightShader.use();
+    lightShader.setMat4("projection", projection);
+    glm::vec3 lightColor = glm::vec3(3.0f*sin(glfwGetTime()), 0.0f, 0.0f);
+    lightShader.setVec3("lightColor", lightColor);
+    objShader.use();
+    objShader.setVec3("lightColor", lightColor);
+    
+
     while (!glfwWindowShouldClose(window))
     {  
         asuka.Bind();
@@ -185,24 +195,29 @@ int main()
         processInput(window,deltaTime);
         glm::mat4 view;
         view = camera.GetViewMatrix();
-        Shader.setMat4("view", view);
+        objShader.use();
+        objShader.setMat4("view", view);
+        lightShader.use();
+        lightShader.setMat4("view", view);
         glClear(GL_COLOR_BUFFER_BIT);// Clear the screen with the set color
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //
         glm::mat4 model = glm::mat4(1.0f);
         VAO1.bind();
         asuka.Bind();
-        asuka.texUnit(Shader, "texture1", 0);
+        asuka.texUnit(objShader, "texture1", 0);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        Shader.setMat4("model", model);
+        model = glm::rotate(model, glm::radians((float)(30*glfwGetTime())), glm::vec3(0.0f, 1.0f, 0.0f));
+        objShader.setMat4("model", model);
         glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT,0);
         VAO1.unbind();
         //
+        lightShader.use();
         model = glm::mat4(1.0f);
         cubeVAO.bind();
         model = glm::translate(model, glm::vec3(1.0f, 1.0f, 0.0f));
         model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-        Shader.setMat4("model", model);
+        lightShader.setMat4("model", model);
         glDrawElements(GL_TRIANGLES,sizeof(cubeIndices)/sizeof(int), GL_UNSIGNED_INT, 0);
         cubeVAO.unbind();
         // for rendering the pyramid

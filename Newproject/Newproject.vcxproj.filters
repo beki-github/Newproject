@@ -33,6 +33,15 @@
     <ClCompile Include="src\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\EBO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VAO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VBO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Shader.h">
@@ -50,10 +59,21 @@
     <ClInclude Include="src\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\EBO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VAO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VBO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shader.frag" />
     <None Include="src\shader.vert" />
+    <None Include="src\lightObj.frag" />
+    <None Include="src\lightObj.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\..\..\Downloads\power.jpg">

@@ -176,6 +176,8 @@
     <ClInclude Include="src\VBO.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="src\lightObj.frag" />
+    <None Include="src\lightObj.vert" />
     <None Include="src\shader.frag" />
     <None Include="src\shader.vert" />
   </ItemGroup>
